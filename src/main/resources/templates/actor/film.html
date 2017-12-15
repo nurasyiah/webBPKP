@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1"/>
+<title>Insert title here</title>
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://code.jquery.com/ui/jquery-ui-git.css"/>
+
+<script
+  src="http://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function(){
+	$('table').DataTable();
+	
+	$.getJSON("http://localhost:8181/greet/actors/", function (data){
+		/*alert (data);*/
+		var actor = [];
+		$.each (data, function(i,row)
+		{
+			actor [i] = {
+					'value': row.actorId,
+					'label': row.firstName
+					};
+		});
+		console.log(actor);
+		
+		$ ("#actorInput").autocomplete (
+		{
+			source : actor,
+			select : function(event,ui){
+				event.preventDefault();
+				$(this).val(ui.item.label);
+				$("#idActor").val(ui.item.value);
+				
+				var actorId = $("#idActor").val();
+				var filmId = $("#idFilm").text();
+				$.getJSON("http://localhost:8080/linkActorFilm/"+filmId+"/"+actorId, function(data){
+					if (data == 0)
+						location.href = location.href;
+				});
+				
+			}
+		});
+		
+/* 		$("#link").click(function(){
+			var filmId = $("#idFilm").val();
+			var actorId = $("#idActor").text();
+			$.getJSON("http://localhost:8080/linkActorFilm/"+filmId+"/"+actorId, function(data){
+				if (data == 0)
+					location.href = location.href;
+			});
+			
+			
+		}); */
+		
+	});//json awal
+	
+});//document ready
+</script>
+
+</head>
+<body>
+	<!-- <p th:text="'Kita hidup di ' + ${negara}"> </p>
+	<p th:each="bhs : ${bahasa}" th:text="${bhs}"></p> -->
+	
+	<p th:text="'Title: ' + ${film.title}"></p>
+	<p th:text="'Description: ' + ${film.description}"></p>
+	<p th:text="'Release: ' + ${film.releaseYear}"></p>
+	
+	<!-- Tambahan simpan artis -->
+	<p> <input type="text" id='actorInput'/> 
+		<input type="hidden" id="idActor"/>
+		<div id="idFilm" th:text="${film.filmId}"></div>
+	</p>
+	<p> <input type="button" id='link' value="Simpan"/></p>
+	
+	<table>
+		<thead>
+			<tr>
+				<th> First Name </th>
+				<th> Last Name </th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="Actor : ${Actors}">
+				<td th:text="${Actor.actor.firstName}"></td>
+				<td th:text="${Actor.actor.lastName}"></td>
+			</tr>
+		</tbody>
+		
+		
+		
+	</table>
+</body>
+</html>
